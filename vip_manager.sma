@@ -61,7 +61,7 @@ public client_putinserver(id)
 	isVIP[id] = 0
 	VIPLevel[id] = 0
 	cs_set_user_vip(id, 0, 0, 0)
-	set_task(2.222, "client_load_vip", id)
+	set_task(3.0, "client_load_vip", id)
 }
 
 public show_rt(id)
