@@ -2,12 +2,12 @@
 Configurable vip manager with native and forward for amxmodx with some built-in vip plugins, it has auto deletion after remaining days end
 
 # HOW TO USE?
-- amx_vm_version // returns the plugin version
-- amx_vm_add // <player name | steamid | ip> - <infinite | expire day> - <vip level | 0 by default>
-- amx_vm_remove // <player name | steamid | ip>
-- amx_vm_list // lists the all vip players with remaining days to expire
+- amx_vm_add <player name | steamid | ip> - <infinite | expire day> - <vip level | 0 by default>
+- amx_vm_remove <player name | steamid | ip>
 
 # CVars
+- amx_vm_version // returns the plugin version
+- amx_vm_list // lists the all vip players with remaining days to expire
 - amx_vm_tag_use_custom_folder "0" // to save custom dir, multi server support (2 servers 1 save file, players will be happy)
 - amx_vm_custom_folder_dest "C:\ExampleFolder\cstrike\addons\amxmodx\configs" // path for custom dir, multiple servers can acces this path
 - amx_vm_save_type "0" // 0 = player name, 1 = steamid, 2 = ip
