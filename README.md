@@ -5,6 +5,10 @@ Configurable vip manager with native and forward for amxmodx with some built-in 
 - amx_vm_add <player name | steamid | ip> <infinite | expire day> <vip level | 0 by default>
 - amx_vm_remove <player name | steamid | ip>
 
+Example: "amx_vm_add EfeDursun125 infinite 1"
+Result: EfeDursun125 is added to the vip_lists.ini with infinite time, you can infinite with days like: "amx_vm_add EfeDursun125 30 1"
+Note: The last 1 stands for vip levels, so you can sell more vips, like 0 = normal vip, 1 = mvp and 2 = mvp+ etc.
+
 # CVars
 - amx_vm_version // returns the plugin version
 - amx_vm_list // lists the all vip players with remaining days to expire
