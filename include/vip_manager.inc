@@ -7,7 +7,7 @@
  * Returns whether a player is a vip.
  *
  * @param id	Player index.
- * @return		True if it is, false otherwise.
+ * @return	True if it is, false otherwise.
  */
 native is_user_vip(id)
 
@@ -15,12 +15,12 @@ native is_user_vip(id)
  * Returns a player's vip level, do not use it without is_user_vip native.
  *
  * @param id	Player index.
- * @return		Player's vip level, 0 by default.
+ * @return	Player's vip level, 0 by default.
  */
 native get_user_vip_level(id)
 
 /**
- * Called when user set as vip after put in server.
+ * Called after user set as vip after put in server.
  *
  * @note Use PLUGIN_HANDLED for block it.
  *
@@ -30,7 +30,7 @@ native get_user_vip_level(id)
 forward vip_putinserver(id, level)
 
 /**
- * Called when vip disconnected from the server.
+ * Called after vip disconnected from the server.
  *
  * @param id	Player index.
  * @param level	Player's vip level.
