@@ -2,6 +2,8 @@
 Configurable vip manager with native and forward for amxmodx with some built-in vip plugins, it has auto deletion after remaining days end
 
 # HOW TO USE?
+Note: vip_manager is the MAIN plugin, others are OPTIONAL!
+
 - amx_vm_add <player name | steamid | ip> <infinite | expire day> <vip level | 0 by default>
 - amx_vm_remove <player name | steamid | ip>
 
