@@ -4,6 +4,9 @@
 #include <cstrike>
 #define PLUGIN_VERSION "0.1"
 
+// use predefine to speed up
+#define MUL 24.0 * 60.0 * 60.0
+
 //
 // level is 0 by default
 // you can set players vip by default
@@ -127,7 +130,7 @@ public show_rt(id)
 				client_print_color(id, id, "^x04[VIP Manager]^x01 You have ^x04infinite^x01 days remaining.")
 			else
 			{
-				new value = floatround((str_to_float(time) - get_systime()) / (24.0 * 60.0 * 60.0), floatround_ceil)
+				new value = floatround((str_to_float(time) - get_systime()) / MUL, floatround_ceil)
 				client_print_color(id, id, "^x04[VIP Manager]^x01 You have ^x04%i^x01 days remaining.", value)
 			}
 			break
@@ -301,7 +304,7 @@ public cmd_list_vip(id, level, cid)
 		else if (str_to_float(time) > get_systime())
 		{
 			ArrayPushString(lines, text)
-			console_print(id, "--> %s | level %s | %i days remaining", left, right, floatround((str_to_float(time) - get_systime()) / (24.0 * 60.0 * 60.0), floatround_ceil))
+			console_print(id, "--> %s | level %s | %i days remaining", left, right, floatround((str_to_float(time) - get_systime()) / MUL, floatround_ceil))
 		}
 		else
 			console_print(id, "--> %s | level %s | already ended", left, right)
@@ -348,7 +351,7 @@ public cmd_add_vip(id, level, cid)
 	else
 	{
 		new buffer[128]
-		new Float:time = get_systime() + (str_to_float(days) * 24.0 * 60.0 * 60.0)
+		new Float:time = get_systime() + (str_to_float(days) * MUL)
 		float_to_str(time, buffer, charsmax(buffer))
 		add_vip_data(name, vlevel, buffer)
 	}
