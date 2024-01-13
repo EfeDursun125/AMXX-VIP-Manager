@@ -1,4 +1,4 @@
-# AMXX-VIP-Manager
+# Amx Mod X VIP Manager
 Configurable vip manager with native and forward for amxmodx with some built-in vip plugins, it has auto deletion after remaining days end
 
 # HOW TO USE?
