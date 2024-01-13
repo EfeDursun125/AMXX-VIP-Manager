@@ -7,7 +7,7 @@ Configurable vip manager with native and forward for amxmodx with some built-in 
 
 Example: "amx_vm_add EfeDursun125 infinite 1"
 
-Result: EfeDursun125 is added to the vip_lists.ini with infinite time, you can infinite with days like: "amx_vm_add EfeDursun125 30 1"
+Result: EfeDursun125 is added to the vip_lists.ini with infinite time, you can infinite with days like: "amx_vm_add EfeDursun125 30 1" after that EfeDursun125 will be removed from the vip_lists.ini after 30 days
 
 Note: The last 1 stands for vip levels, so you can sell more vips, like 0 = normal vip, 1 = mvp and 2 = mvp+ etc.
 
