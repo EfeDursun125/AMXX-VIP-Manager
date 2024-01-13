@@ -41,7 +41,7 @@ public plugin_init()
 
 public plugin_natives()
 {
-	register_library("vip")
+	register_library("vip_manager")
 	register_native("is_user_vip", "isUserVIP")
 	register_native("get_user_vip_level", "getVIPLevel")
 }
