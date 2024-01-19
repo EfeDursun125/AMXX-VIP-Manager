@@ -7,7 +7,11 @@ new cvar_damage_mvp
 public plugin_init()
 {
 	register_plugin("VIP Damage Multiplier", "0.1", "EfeDursun125")
+#if AMXX_VERSION_NUM <= 182
+	RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage", 0)
+#else
 	RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage", 0, true)
+#endif
 	cvar_damage_vip = register_cvar("amx_vm_damage_mul_vip", "1.1")
 	cvar_damage_mvp = register_cvar("amx_vm_damage_mul_mvp", "1.2")
 }

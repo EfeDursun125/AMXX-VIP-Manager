@@ -8,7 +8,7 @@
 // https://forums.alliedmods.net/showthread.php?t=10159
 //
 
-new jumpNum[33] = 0
+new jumpNum[32] = 0
 public plugin_init()
 {
 	register_plugin("VIP Multi Jump", "1.2", "twistedeuphoria")
@@ -38,8 +38,7 @@ public client_PreThink(id)
 			jumpNum[id] = 0
 		else if (!(get_user_oldbutton(id) & IN_JUMP))
 		{
-			new numJumps = get_user_vip_level(id) == 0 ? 1 : 2 // 0 is default vip level, upper vip levels have a triple jump
-			if (jumpNum[id] < numJumps)
+			if (jumpNum[id] < (get_user_vip_level(id) == 0 ? 1 : 2)) // 0 is default vip level, upper vip levels have a triple jump
 			{
 				new Float:velocity[3]
 				entity_get_vector(id, EV_VEC_velocity, velocity)

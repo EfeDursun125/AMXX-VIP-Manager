@@ -1,11 +1,16 @@
 #include <amxmodx>
 #include <amxmisc>
 #include <fakemeta>
-#include <cstrike>
-#define PLUGIN_VERSION "0.1"
+#define PLUGIN_VERSION "0.3"
+
+forward zp_user_humanized_post(id, survivor)
+forward zp_user_infected_post(id, infector, nemesis)
+forward event_infect(victim, attacker)
 
 // use predefine to speed up
 #define MUL 24.0 * 60.0 * 60.0
+#define TASK_VIP 68548
+#define TASK_SHOW 4590438
 
 //
 // level is 0 by default
@@ -26,6 +31,7 @@ new saveDest
 new saveType
 new putin
 new discon
+new score
 
 public plugin_init()
 {
@@ -36,10 +42,24 @@ public plugin_init()
 	saveType = register_cvar("amx_vm_save_type", "0")
 	putin = CreateMultiForward("vip_putinserver", ET_CONTINUE, FP_CELL, FP_CELL)
 	discon = CreateMultiForward("vip_disconnected", ET_IGNORE, FP_CELL, FP_CELL)
-	register_concmd("amx_vm_add", "cmd_add_vip", _, "<player name | steamid | ip> - <infinite | expire day> - <vip level | 0 by default>", 0)
-	register_concmd("amx_vm_remove", "cmd_remove_vip", _, "<player name | steamid | ip>", 0)
-	register_concmd("amx_vm_list", "cmd_list_vip", _, "Lists the all vip players with remaining days to expire", 0)
-	register_clcmd("say vm_show_rt", "show_rt")
+	register_concmd("amx_vm_add", "cmd_add_vip", ADMIN_RCON, "<player name | steamid | ip> - <infinite | expire day> - <vip level | 0 by default>", 0)
+	register_concmd("amx_vm_remove", "cmd_remove_vip", ADMIN_RCON, "<player name | steamid | ip>", 0)
+	register_concmd("amx_vm_list", "cmd_list_vip", ADMIN_KICK, "Lists the all vip players with remaining days to expire", 0)
+	register_clcmd("say !vm_show_rt", "show_rt")
+}
+
+public plugin_cfg()
+{
+	set_task(10.0, "find_score")
+}
+
+public find_score()
+{
+	if (get_cvar_pointer("mp_freezetime") != 0)
+	{
+		score = get_user_msgid("ScoreAttrib")
+		register_event("ResetHUD", "reset_hud", "b")
+	}
 }
 
 public plugin_natives()
@@ -47,6 +67,8 @@ public plugin_natives()
 	register_library("vip_manager")
 	register_native("is_user_vip", "isUserVIP")
 	register_native("get_user_vip_level", "getVIPLevel")
+	register_native("set_user_vip", "setUserVIP")
+	register_native("set_user_vip_level", "setVIPLevel")
 }
 
 public isUserVIP(plugin, params)
@@ -59,20 +81,105 @@ public getVIPLevel(plugin, params)
 	return VIPLevel[get_param(1)]
 }
 
+public setUserVIP(id, num)
+{
+	isVIP[id] = num
+}
+
+public setVIPLevel(id, level)
+{
+	VIPLevel[id] = level
+}
+
 public client_putinserver(id)
 {
-	isVIP[id] = 0
+	isVIP[id] = false
 	VIPLevel[id] = 0
-	cs_set_user_vip(id, 0, 0, 0)
-	set_task(3.0, "client_load_vip", id)
+	set_task(3.0, "client_load_vip", TASK_VIP + id)
 }
+
+#if AMXX_VERSION_NUM <= 182
+// from the zp 4.3
+stock client_print_color(target, sender, const message[], any:...)
+{
+	new buffer[512], i, argscount
+	argscount = numargs()
+
+	// send to everyone
+	if (!target)
+	{
+		new cache = get_user_msgid("SayText")
+		new player
+		new changed[5], changedcount
+		new maxPlayers = get_maxplayers()
+		for (player = 1; player <= maxPlayers; player++)
+		{
+			// not connected
+			if (!is_user_connected(player))
+				continue
+
+			// remember changed arguments
+			// [5] = max LANG_PLAYER occurencies
+			changedcount = 0
+
+			// replace LANG_PLAYER with player id
+			for (i = 2; i < argscount; i++)
+			{
+				if (getarg(i) == LANG_PLAYER)
+				{
+					setarg(i, 0, player)
+					changed[changedcount] = i
+					changedcount++
+				}
+			}
+
+			// format message for player
+			vformat(buffer, charsmax(buffer), message, 3)
+
+			// send it
+			message_begin(MSG_ONE, cache, _, player)
+			write_byte(sender)
+			write_string(buffer)
+			message_end()
+
+			// replace back player id's with LANG_PLAYER
+			for (i = 0; i < changedcount; i++)
+				setarg(changed[i], 0, LANG_PLAYER)
+		}
+	}
+	else // send to specific target
+	{
+		/*
+		// not needed since you should set the ML argument
+		// to the player's id for a targeted print message
+		
+		// replace LANG_PLAYER with player id
+		for (i = 2; i < argscount; i++)
+		{
+			if (getarg(i) == LANG_PLAYER)
+				setarg(i, 0, target)
+		}
+		*/
+
+		// format message for player
+		vformat(buffer, charsmax(buffer), message, 3)
+
+		// send it
+		message_begin(MSG_ONE, get_user_msgid("SayText"), _, target)
+		write_byte(sender)
+		write_string(buffer)
+		message_end()
+	}
+}
+#endif
 
 public show_rt(id)
 {
-	if (!is_user_connected(id))
-		return
-	
+	// vip check is faster, it goes first
 	if (!isVIP[id])
+		return
+
+	if (!is_user_connected(id))
 		return
 
 	new playerName[255]
@@ -129,10 +236,7 @@ public show_rt(id)
 			if (equali(time, "infinite"))
 				client_print_color(id, id, "^x04[VIP Manager]^x01 You have ^x04infinite^x01 days remaining.")
 			else
-			{
-				new value = floatround((str_to_float(time) - get_systime()) / MUL, floatround_ceil)
-				client_print_color(id, id, "^x04[VIP Manager]^x01 You have ^x04%i^x01 days remaining.", value)
-			}
+				client_print_color(id, id, "^x04[VIP Manager]^x01 You have ^x04%i^x01 days remaining.", floatround((str_to_float(time) - get_systime()) / MUL, floatround_ceil))
 			break
 		}
 	}
@@ -155,8 +259,33 @@ public client_disconnect(id)
 
 public client_load_vip(id)
 {
+	id -= TASK_VIP
 	if (!is_user_connected(id))
 		return
+
+	if (is_user_bot(id))
+	{
+		// %13 chance to set bot as a vip
+		// poor bots should taste how is the feeling of the vip :(
+		// i'm just kidding... to have some fun...
+		if (random_num(1, 8) == 1)
+		{
+			new ret
+			new lvl = random_num(0, 1) // vip, mvp
+			ExecuteForward(putin, ret, id, lvl)
+			if (ret < PLUGIN_HANDLED)
+			{
+				isVIP[id] = true
+				VIPLevel[id] = lvl
+				message_begin(MSG_ALL, score)
+				write_byte(id)
+				write_byte(4)
+				message_end()
+			}
+		}
+
+		return
+	}
 
 	new playerName[255]
 	if (get_pcvar_num(saveType) == 1)
@@ -219,11 +348,14 @@ public client_load_vip(id)
 				ExecuteForward(putin, ret, id, lvl)
 				if (ret < PLUGIN_HANDLED)
 				{
-					cs_set_user_vip(id, 0, 0, 1)
-					isVIP[id] = 1
+					isVIP[id] = true
 					VIPLevel[id] = lvl
 					if (VIPLevel[id] < 0)
 						VIPLevel[id] = 0
+					message_begin(MSG_ALL, score)
+					write_byte(id)
+					write_byte(4)
+					message_end()
 				}
 			}
 
@@ -252,9 +384,6 @@ public client_load_vip(id)
 
 public cmd_list_vip(id, level, cid)
 {
-	if (!cmd_access(id, ADMIN_KICK, cid, 1))
-		return PLUGIN_HANDLED
-
 	new path[255]
 	if (get_pcvar_num(saveCust) != 1)
 		get_configsdir(path, charsmax(path))
@@ -334,9 +463,6 @@ public cmd_list_vip(id, level, cid)
 
 public cmd_add_vip(id, level, cid)
 {
-	if (!cmd_access(id, ADMIN_RCON, cid, 4))
-		return PLUGIN_HANDLED
-
 	new name[128]
 	read_argv(1, name, charsmax(name))
 
@@ -361,9 +487,6 @@ public cmd_add_vip(id, level, cid)
 
 public cmd_remove_vip(id, level, cid)
 {
-	if (!cmd_access(id, ADMIN_RCON, cid, 2))
-		return PLUGIN_HANDLED
-
 	new name[128]
 	read_argv(1, name, charsmax(name))
 
@@ -459,4 +582,48 @@ stock add_vip_data(const playerName[], const vipLevel[], const expireTime[])
 		fprintf(file, "%s&%s&%s^n", playerName, vipLevel, expireTime)
 
 	fclose(file)
+}
+
+public reset_hud(id)
+{
+	if (!isVIP[id])
+		return
+
+	message_begin(MSG_ALL, score)
+	write_byte(id)
+	write_byte(4)
+	message_end()
+}
+
+public zp_user_humanized_post(id, survivor)
+{
+	if (!isVIP[id])
+		return
+
+	message_begin(MSG_ALL, score)
+	write_byte(id)
+	write_byte(4)
+	message_end()
+}
+
+public zp_user_infected_post(id, infector, nemesis)
+{
+	if (!isVIP[id])
+		return
+
+	message_begin(MSG_ALL, score)
+	write_byte(id)
+	write_byte(4)
+	message_end()
+}
+
+public event_infect(victim, attacker)
+{
+	if (!isVIP[victim])
+		return
+
+	message_begin(MSG_ALL, score)
+	write_byte(victim)
+	write_byte(4)
+	message_end()
 }
