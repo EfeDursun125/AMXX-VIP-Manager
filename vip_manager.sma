@@ -1,6 +1,7 @@
 #include <amxmodx>
 #include <amxmisc>
 #include <fakemeta>
+#include <hamsandwich>
 #define PLUGIN_VERSION "0.3"
 
 forward zp_user_humanized_post(id, survivor)
@@ -46,11 +47,16 @@ public plugin_init()
 	register_concmd("amx_vm_remove", "cmd_remove_vip", ADMIN_RCON, "<player name | steamid | ip>", 0)
 	register_concmd("amx_vm_list", "cmd_list_vip", ADMIN_KICK, "Lists the all vip players with remaining days to expire", 0)
 	register_clcmd("say !vm_show_rt", "show_rt")
+#if AMXX_VERSION_NUM <= 182
+	RegisterHam(Ham_Spawn, "player", "player_spawn", 1)
+#else
+	RegisterHam(Ham_Spawn, "player", "player_spawn", 1, true)
+#endif
 }
 
 public plugin_cfg()
 {
-	set_task(10.0, "find_score")
+	set_task(2.0, "find_score")
 }
 
 public find_score()
@@ -96,6 +102,21 @@ public client_putinserver(id)
 	isVIP[id] = false
 	VIPLevel[id] = 0
 	set_task(3.0, "client_load_vip", TASK_VIP + id)
+}
+
+public player_spawn(id)
+{
+	// cheap condition goes first
+	if (!isVIP[id])
+		return
+	
+	if (!is_user_alive(id))
+		return
+	
+	message_begin(MSG_ALL, score)
+	write_byte(id)
+	write_byte(4)
+	message_end()
 }
 
 #if AMXX_VERSION_NUM <= 182

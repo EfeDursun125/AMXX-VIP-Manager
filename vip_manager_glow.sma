@@ -32,7 +32,7 @@ new Float:glowColor[MAXP][3]
 public plugin_init()
 {
 	register_plugin("VIP Glow", PLUGIN_VERSION, "EfeDursun125")
-	register_cvar("amx_vm_version", PLUGIN_VERSION)
+	register_cvar("amx_vm_glow_version", PLUGIN_VERSION)
 	register_cvar(CVAR_ALLOW_ZOMBIE, "0") // example: this cvar replaced with "amx_vm_glow_allow_zombie" and CVAR does not stored as a variable, free memory space
 	register_cvar(CVAR_GLOW_SIZE, "24")
 	minLevel = register_cvar("amx_vm_glow_minimum_level", "0")
@@ -53,16 +53,13 @@ public player_spawn(id)
 	if (get_user_vip_level(id) < get_pcvar_num(minLevel))
 		return
 
-	if (pev_valid(id) != 2)
-		return
-
 	if (!is_user_alive(id))
 		return
 
 	if (is_user_bot(id))
 	{
 		// sometimes we don't want glow
-		if (random_num(1, 3) == 1)
+		if (random_num(1, 4) == 1)
 		{
 			glowColor[id][0] = 255.0
 			glowColor[id][1] = 255.0
@@ -217,9 +214,7 @@ public show_glow_menu(id)
 	if (get_user_vip_level(id) < get_pcvar_num(minLevel))
 		return
 
-	// no need to is_user_connected, why do you still use it with is_user_alive?
-	// https://www.amxmodx.org/api/amxmodx/is_user_connected
-	if (!is_user_alive(id))
+	if (!is_user_connected(id))
 		return
 
 	new menu[250]
@@ -247,7 +242,7 @@ public show_glow_menu(id)
 
 public menu_glow(id, key)
 {
-	if (!is_user_alive(id))
+	if (!is_user_connected(id))
 		return PLUGIN_HANDLED
 
 	switch (key)
