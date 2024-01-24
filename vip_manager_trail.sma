@@ -41,11 +41,6 @@ public plugin_init()
 	register_menu("Trail Menu", MENU_KEYS, "menu_trail")
 	register_menu("Trail Set", MENU_KEYS, "menu_set")
 	register_menu("Trail Set 2", MENU_KEYS, "menu_set2")
-#if AMXX_VERSION_NUM <= 182
-	RegisterHam(Ham_Spawn, "player", "player_spawn", 1)
-#else
-	RegisterHam(Ham_Spawn, "player", "player_spawn", 1, true)
-#endif
 }
 
 public plugin_precache()
@@ -89,6 +84,11 @@ public vip_putinserver(id, level)
 	gl_player_colors[id][0] = random_num(0, 255)
 	gl_player_colors[id][1] = random_num(0, 255)
 	gl_player_colors[id][2] = random_num(0, 255)
+	gl_trail_id[id] = random_num(0, NUM_SPRITES)
+	gl_trail_type[id] = gl_sprite[gl_trail_id[id]]
+
+	if (is_user_connected(id) && is_user_bot(id))
+		hasTrail[id] = true
 }
 
 #if AMXX_VERSION_NUM > 182
@@ -142,35 +142,6 @@ public client_PostThink(id)
 
 	trailTimer[id] = get_gametime() + life
 	return PLUGIN_CONTINUE
-}
-
-public player_spawn(id)
-{
-	if (!is_user_vip(id))
-		return
-
-	if (get_user_vip_level(id) < get_pcvar_num(minLevel))
-		return
-
-	if (!is_user_alive(id))
-		return
-
-	if (is_user_bot(id))
-	{
-		// sometimes we don't want glow
-		if (random_num(1, 4) == 1)
-		{
-			hasTrail[id] = false
-			return
-		}
-		else
-		{
-			hasTrail[id] = true
-			gl_player_colors[id][0] = random_num(0, 255)
-			gl_player_colors[id][1] = random_num(0, 255)
-			gl_player_colors[id][2] = random_num(0, 255)
-		}
-	}
 }
 
 public zp_user_humanized_post(id, survivor)
