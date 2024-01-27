@@ -89,7 +89,16 @@ public getVIPLevel(plugin, params)
 
 public setUserVIP(id, num)
 {
+	new call = false
+	if (!isVIP[id])
+		call = true
+
 	isVIP[id] = num
+	if (isVIP[id] && call)
+	{
+		new ret
+		ExecuteForward(discon, ret, id, VIPLevel[id])
+	}
 }
 
 public setVIPLevel(id, level)
