@@ -27,4 +27,4 @@ get_user_vip_level(id) = as the native name says
 
 # Forwards
 vip_putinserver(id, level) = called after player is registered as vip, use PLUGIN_HANDLED for block player being vip
-vip_disconnected(id, level) = Called after vip disconnected from the server
+vip_disconnected(id, level) = called after vip disconnected from the server
