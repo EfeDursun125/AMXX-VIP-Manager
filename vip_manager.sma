@@ -236,7 +236,7 @@ public show_rt(id)
 	new filePath[256]
 	formatex(filePath, charsmax(filePath), "%s/econf/vip_manager", path)
 	if (!dir_exists(filePath))
-		mkdir(filePath)
+		return
 
 	new fileName[255]
 	formatex(fileName, charsmax(fileName), "%s/vip_list.ini", filePath)
@@ -596,7 +596,11 @@ stock add_vip_data(const playerName[], const vipLevel[], const expireTime[])
 	}
 
 	new filePath[256]
-	formatex(filePath, charsmax(filePath), "%s/econf/vip_manager", path)
+	formatex(filePath, charsmax(filePath), "%s/econf", path)
+	if (!dir_exists(filePath))
+		mkdir(filePath)
+
+	format(filePath, charsmax(filePath), "%s/vip_manager", filePath)
 	if (!dir_exists(filePath))
 		mkdir(filePath)
 
