@@ -22,9 +22,9 @@ Note: The last 1 stands for vip levels, so you can sell more vips, like 0 = norm
 - !vm_show_rt // say command, shows how many days remaining to expire (only vip players can use it)
 
 # Natives
-is_user_vip(id) = returns 1 if is user vip, 0 otherwise
-get_user_vip_level(id) = as the native name says
+- is_user_vip(id) // returns 1 if is user vip, 0 otherwise
+- get_user_vip_level(id) // as the native name says
 
 # Forwards
-vip_putinserver(id, level) = called after player is registered as vip, use PLUGIN_HANDLED for block player being vip
-vip_disconnected(id, level) = called after vip disconnected from the server
+- vip_putinserver(id, level) // called after player is registered as vip, use PLUGIN_HANDLED for block player being vip
+- vip_disconnected(id, level) // called after vip disconnected from the server
