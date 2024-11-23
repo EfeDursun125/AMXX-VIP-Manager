@@ -14,7 +14,6 @@ forward event_infect(victim, attacker)
 #define CVAR_FORCE_LOOP "amx_vm_glow_force_loop"
 
 new minLevel
-new forceLoop
 
 #define MAXP 33
 new isZombie[MAXP]
@@ -92,8 +91,8 @@ public set_player_glow(id)
 	set_rendering(id, kRenderFxGlowShell, glowColor[id], kRenderNormal, get_cvar_float(CVAR_GLOW_SIZE))
 	isZombie[id] = false
 
-	if (get_cvar_num(CVAR_FORCE_LOOP) && !task_exists(TASK_GLOW + id))
-		set_task(3.0, "set_player_glow", TASK_GLOW + id)
+	if (get_cvar_num(CVAR_FORCE_LOOP))
+		set_task(9.0, "set_player_glow", TASK_GLOW + id)
 }
 
 public zp_user_humanized_post(id, survivor)
