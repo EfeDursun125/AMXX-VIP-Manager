@@ -11,8 +11,10 @@ forward event_infect(victim, attacker)
 #define PLUGIN_VERSION "0.1"
 #define CVAR_ALLOW_ZOMBIE "amx_vm_glow_allow_zombie"
 #define CVAR_GLOW_SIZE "amx_vm_glow_size"
+#define CVAR_FORCE_LOOP "amx_vm_glow_force_loop"
 
 new minLevel
+new forceLoop
 
 #define MAXP 33
 new isZombie[MAXP]
@@ -27,6 +29,7 @@ public plugin_init()
 	register_cvar("amx_vm_glow_version", PLUGIN_VERSION)
 	register_cvar(CVAR_ALLOW_ZOMBIE, "0")
 	register_cvar(CVAR_GLOW_SIZE, "24")
+	register_cvar(CVAR_FORCE_LOOP, "0")
 	minLevel = register_cvar("amx_vm_glow_minimum_level", "0")
 	register_clcmd("say !vm_glow_menu", "show_glow_menu")
 	register_menu("Glow Menu", MENU_KEYS, "menu_glow")
@@ -88,6 +91,9 @@ public set_player_glow(id)
 
 	set_rendering(id, kRenderFxGlowShell, glowColor[id], kRenderNormal, get_cvar_float(CVAR_GLOW_SIZE))
 	isZombie[id] = false
+
+	if (get_cvar_num(CVAR_FORCE_LOOP) && !task_exists(TASK_GLOW + id))
+		set_task(3.0, "set_player_glow", TASK_GLOW + id)
 }
 
 public zp_user_humanized_post(id, survivor)
@@ -99,10 +105,11 @@ public zp_user_humanized_post(id, survivor)
 
 public zp_user_infected_post(id, infector, nemesis)
 {
-	if (!nemesis && get_cvar_num(CVAR_ALLOW_ZOMBIE) != 1)
+	if (!get_cvar_num(CVAR_ALLOW_ZOMBIE))
 	{
 		remove_task(TASK_GLOW + id)
-		set_rendering(id)
+		if (!nemesis)
+			set_rendering(id)
 		isZombie[id] = true
 	}
 }
