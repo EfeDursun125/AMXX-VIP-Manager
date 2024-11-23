@@ -99,7 +99,7 @@ public zp_user_humanized_post(id, survivor)
 
 public zp_user_infected_post(id, infector, nemesis)
 {
-	if (nemesis || get_cvar_num(CVAR_ALLOW_ZOMBIE) != 1)
+	if (!nemesis && get_cvar_num(CVAR_ALLOW_ZOMBIE) != 1)
 	{
 		remove_task(TASK_GLOW + id)
 		set_rendering(id)
